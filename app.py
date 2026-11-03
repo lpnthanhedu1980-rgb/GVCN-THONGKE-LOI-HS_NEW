@@ -22,7 +22,7 @@ with st.sidebar:
     ma_truy_cap = st.text_input("Nhập mã bảo vệ:", type="password")
     
     api_key = None
-    if ma_truy_cap == "9b5":
+    if ma_truy_cap == "THANHVUIVE":
         try:
             api_key = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=api_key)
