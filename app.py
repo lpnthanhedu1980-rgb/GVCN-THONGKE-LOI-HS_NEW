@@ -22,7 +22,7 @@ with st.sidebar:
     ma_truy_cap = st.text_input("Nhập mã bảo vệ:", type="password")
     
     api_key = None
-    if ma_truy_cap == "THANHVUIVE":
+    if ma_truy_cap == "9b5":
         try:
             api_key = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=api_key)
@@ -64,9 +64,23 @@ with tab1:
                 danh_sach_ten = df_hs['Họ và tên'].dropna().tolist()
                 st.write(f"Đã tìm thấy {len(danh_sach_ten)} học sinh.")
                 
-                st.write("2. 🧠 AI đang phân tích hình ảnh và đối chiếu danh sách lớp (sẽ mất khoảng 1-2 phút)...")
+                st.write("2. 🧠 AI đang phân tích hình ảnh và đối chiếu danh sách (khoảng 1-2 phút)...")
                 
-                model = genai.GenerativeModel('gemini-1.5-flash-001', generation_config={"response_mime_type": "application/json"})
+                # --- THUẬT TOÁN TỰ ĐỘNG CHỌN MODEL ĐỂ VƯỢT LỖI 404 ---
+                chon_model = 'gemini-1.5-flash' # dự phòng
+                try:
+                    models = [m.name for m in genai.list_models()]
+                    if 'models/gemini-1.5-flash' in models:
+                        chon_model = 'gemini-1.5-flash'
+                    elif 'models/gemini-1.5-pro' in models:
+                        chon_model = 'gemini-1.5-pro'
+                    elif 'models/gemini-pro-vision' in models:
+                        chon_model = 'gemini-pro-vision'
+                except:
+                    pass
+                
+                st.write(f"(Đang dùng bộ não AI: {chon_model})")
+                model = genai.GenerativeModel(chon_model)
                 
                 prompt = """
 Bạn là trợ lý đọc sổ tay kỷ luật và phong trào của giáo viên.
@@ -82,7 +96,7 @@ YÊU CẦU:
 4. Cấu trúc phong trào: "- Tham gia [Tên phong trào] ;"
 5. ĐỐI VỚI NHỮNG HỌC SINH CÓ LỖI HOẶC CÓ PHONG TRÀO, GÁN ĐÚNG VÀO TUẦN TRONG ẢNH. Nếu không rõ tuần, gán vào Tuan5.
 
-TRẢ VỀ ĐÚNG CẤU TRÚC JSON:
+BẮT BUỘC TRẢ VỀ DUY NHẤT CHUỖI JSON ĐÚNG CẤU TRÚC SAU (không giải thích gì thêm):
 {
   "ket_qua": [
     {
@@ -102,11 +116,19 @@ TRẢ VỀ ĐÚNG CẤU TRÚC JSON:
                 
                 try:
                     response = model.generate_content(contents)
-                    data_ai = json.loads(response.text)
+                    
+                    # Tự động làm sạch dữ liệu nếu AI trả về kèm định dạng thừa
+                    text_resp = response.text.strip()
+                    if text_resp.startswith("```json"):
+                        text_resp = text_resp[7:-3].strip()
+                    elif text_resp.startswith("```"):
+                        text_resp = text_resp[3:-3].strip()
+                        
+                    data_ai = json.loads(text_resp)
                     dict_ai = {item.get('Ten', '').strip(): item for item in data_ai.get('ket_qua', [])}
                     st.write("✅ AI đã bóc tách xong dữ liệu thực tế!")
                 except Exception as e:
-                    st.error(f"Lỗi khi AI đọc ảnh: {e}. Vui lòng thử lại!")
+                    st.error(f"Lỗi khi AI xử lý: {e}")
                     st.stop()
                 
                 st.write("3. Đang tự động điền dữ liệu vào File Excel mẫu và đếm lỗi...")
