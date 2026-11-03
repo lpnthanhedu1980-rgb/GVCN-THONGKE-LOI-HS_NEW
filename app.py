@@ -66,7 +66,7 @@ with tab1:
                 
                 st.write("2. 🧠 AI đang phân tích hình ảnh và đối chiếu danh sách lớp (sẽ mất khoảng 1-2 phút)...")
                 
-                model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+                model = genai.GenerativeModel('gemini-1.5-flash-latest', generation_config={"response_mime_type": "application/json"})
                 
                 prompt = """
 Bạn là trợ lý đọc sổ tay kỷ luật và phong trào của giáo viên.
