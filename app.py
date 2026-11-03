@@ -11,6 +11,7 @@ from copy import deepcopy
 
 st.set_page_config(page_title="Trợ Lý GVCN", layout="wide")
 
+# --- UI ĐẦU TRANG ---
 st.markdown("### 👨‍🏫 TRƯỜNG THCS ĐOÀN THỊ ĐIỂM - PH1")
 st.markdown("#### GVTH: LÊ PHAN NGỌC THANH")
 st.title("📚 GVCN NHẬN XÉT HS TRONG THÁNG")
@@ -21,7 +22,7 @@ with st.sidebar:
     ma_truy_cap = st.text_input("Nhập mã bảo vệ:", type="password")
     
     api_key = None
-    if ma_truy_cap == "THANHVUIVE":  # <--- THẦY/CÔ CÓ THỂ ĐỔI MẬT KHẨU "9b5" THÀNH CHỮ KHÁC Ở ĐÂY
+    if ma_truy_cap == "THANHVUIVE":
         try:
             api_key = st.secrets["GEMINI_API_KEY"]
             genai.configure(api_key=api_key)
@@ -64,12 +65,16 @@ with tab1:
                 st.write(f"Đã tìm thấy {len(danh_sach_ten)} học sinh.")
                 
                 st.write("2. 🧠 AI đang phân tích hình ảnh và đối chiếu danh sách lớp (sẽ mất khoảng 1-2 phút)...")
-             model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+                
+                model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
                 
                 prompt = """
 Bạn là trợ lý đọc sổ tay kỷ luật và phong trào của giáo viên.
 Đây là danh sách học sinh trong lớp: """ + str(danh_sach_ten) + """
+
+Nhiệm vụ: 
 Hãy đọc thật kỹ các bức ảnh chụp sổ tay, tìm tên học sinh và tổng hợp chính xác lỗi vi phạm, phong trào của TỪNG em có tên trong danh sách trên.
+
 YÊU CẦU:
 1. Nếu học sinh KHÔNG có lỗi hoặc KHÔNG tham gia phong trào, bắt buộc ghi "Không".
 2. Nếu có lỗi, phải ghi đúng cấu trúc: "- ngày/tháng, môn, lỗi vi phạm ;"
@@ -107,6 +112,7 @@ TRẢ VỀ ĐÚNG CẤU TRÚC JSON:
                 st.write("3. Đang tự động điền dữ liệu vào File Excel mẫu và đếm lỗi...")
                 wb = openpyxl.load_workbook(mau_excel)
                 ws = wb.active
+                
                 processed_data = []
                 
                 for index, row in df_hs.iterrows():
@@ -168,6 +174,7 @@ TRẢ VỀ ĐÚNG CẤU TRÚC JSON:
                 st.session_state['excel_data'] = excel_buffer.getvalue()
                 
                 st.write("4. Đang thực hiện Mail Merge và gộp thành 1 file Word duy nhất...")
+                
                 master_doc = None
                 
                 for item in processed_data:
