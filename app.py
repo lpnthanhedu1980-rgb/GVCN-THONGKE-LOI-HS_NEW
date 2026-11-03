@@ -25,6 +25,9 @@ with st.sidebar:
     
     st.header("📸 Tải Lên Sổ Tay")
     anh_so_tay = st.file_uploader("Ảnh chụp sổ tay", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
+    st.sidebar.markdown("---")
+    st.sidebar.caption("👨‍🏫 **TRƯỜNG THCS ĐOÀN THỊ ĐIỂM - PH1**")
+    st.sidebar.caption("GVTH: LÊ PHAN NGỌC THANH")
 
 # --- KHUNG XỬ LÝ CHÍNH ---
 tab1, tab2 = st.tabs(["⚙️ Xử Lý Dữ Liệu", "📊 Kết Quả"])
