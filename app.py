@@ -66,21 +66,8 @@ with tab1:
                 
                 st.write("2. 🧠 AI đang phân tích hình ảnh và đối chiếu danh sách (khoảng 1-2 phút)...")
                 
-                # --- THUẬT TOÁN TỰ ĐỘNG CHỌN MODEL ĐỂ VƯỢT LỖI 404 ---
-                chon_model = 'gemini-1.5-flash' # dự phòng
-                try:
-                    models = [m.name for m in genai.list_models()]
-                    if 'models/gemini-1.5-flash' in models:
-                        chon_model = 'gemini-1.5-flash'
-                    elif 'models/gemini-1.5-pro' in models:
-                        chon_model = 'gemini-1.5-pro'
-                    elif 'models/gemini-pro-vision' in models:
-                        chon_model = 'gemini-pro-vision'
-                except:
-                    pass
-                
-                st.write(f"(Đang dùng bộ não AI: {chon_model})")
-                model = genai.GenerativeModel(chon_model)
+                # --- SỬ DỤNG MODEL CHUẨN MỚI NHẤT ---
+                model = genai.GenerativeModel('gemini-2.5-flash')
                 
                 prompt = """
 Bạn là trợ lý đọc sổ tay kỷ luật và phong trào của giáo viên.
@@ -116,8 +103,6 @@ BẮT BUỘC TRẢ VỀ DUY NHẤT CHUỖI JSON ĐÚNG CẤU TRÚC SAU (không g
                 
                 try:
                     response = model.generate_content(contents)
-                    
-                    # Tự động làm sạch dữ liệu nếu AI trả về kèm định dạng thừa
                     text_resp = response.text.strip()
                     if text_resp.startswith("```json"):
                         text_resp = text_resp[7:-3].strip()
